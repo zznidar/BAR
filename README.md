@@ -1,2 +1,2 @@
 # BAR
-Blacklist for Ad Redirects
+Blocklist for Ad Redirects
