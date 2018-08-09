@@ -809,13 +809,13 @@ const agenti = [
   }
 ];
 
-
+console.log("User passed a parameter: " + process.argv[2]); // process.argv is an array of arguments passed by user
 (async function main() {
 	try{
 	
 	
 
-	const browser = await puppeteer.launch({ headless: true });
+	const browser = await puppeteer.launch({ headless: false });
 	const page = await browser.newPage();
 	//page.setUserAgent('Mozilla/5.0 (Linux; Android 8.0.0; SM-G955F Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.91 Mobile Safari/537.36');
 	
@@ -823,9 +823,7 @@ const agenti = [
 	
 	await page.emulate(devices[agenti[i].name]);
 	console.log("https://++++++++++++++++++++++++++"+agenti[i].name.replace(/ /g, '+')+".com");
-	const response = await page.goto(
-	'http://competition4824.check-bmcmoney67.loan/?utm_medium=oxxGrJ1EO8rl%2flkgHhDHtdaJe%2b6y3ml38Z%2b1ZX9QaLo%3d&t=main7_6'
-	);
+	const response = await page.goto(process.argv[2]); // Pass the link as an argument
 	const chain = response.request().redirectChain();
 	page.on('framenavigated', frame => {
 	if(frame.parentFrame() === null){

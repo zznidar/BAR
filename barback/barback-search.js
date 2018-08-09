@@ -2,7 +2,7 @@
 const puppeteer = require('puppeteer');
 const devices = require('puppeteer/DeviceDescriptors');
 
-
+console.log("User passed a parameter: " + process.argv[2]); // process.argv is an array of arguments passed by user
 (async function main() {
 	try{
 
@@ -15,7 +15,7 @@ const devices = require('puppeteer/DeviceDescriptors');
 	await page.emulate(devices['iPhone 6'])
 	await page.goto('https://google.com', { waitUntil: 'networkidle0' });
 	await page.focus('input[name=q]');
-    await page.type('input[name=q]', 'mkk naklo' + (String.fromCharCode(13)), { delay: 10 })
+    await page.type('input[name=q]', process.argv[2] + (String.fromCharCode(13)), { delay: 10 })
     
     await page.waitFor(2000);
     
