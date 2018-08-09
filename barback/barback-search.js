@@ -19,7 +19,7 @@ const devices = require('puppeteer/DeviceDescriptors');
     
     await page.waitFor(2000);
     
-    const response = page.click('#rso > div:nth-child(1) > div > div > div > div:nth-child(1) > div > a > div.MUxGbd.v0nnCb');
+    const response = page.click('div.MUxGbd.v0nnCb');
     
     //const chain = response.request().redirectChain();
 	page.on('framenavigated', frame => {
