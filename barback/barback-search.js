@@ -11,9 +11,10 @@ process.argv.forEach(function (val, index, array) {
 console.log("\n");
 
 var domains = [];
+var urls = []; // Full URLs, help us to manually visit redirects and find new domains
 var counter = 0;
 var lastCounter = 0;
-var timeoutRedirect = 3000;
+var timeoutRedirect = 9000;
 
 var oldList = []; // Deduplicated later on, comments removed
 var addList = []; // Domains to be added
@@ -70,6 +71,7 @@ var addList = []; // Domains to be added
 }})();
 
 async function collect(url) {
+	urls.push(url);
 	console.log("Parsed domain: " + parseDomain(url));
 	domains.push(parseDomain(url));
 }
@@ -93,6 +95,13 @@ async function checkIdle() {
 		});
 		dSet = dedupe(domains);
 		console.log(dSet);
+		
+		urls = dedupe(urls);
+		console.log("\n*** Full URLs we've been redirected to (they may be used for future testing): ***\n");
+		for(var i = 0; i < urls.length; i++) {
+			console.log(urls[i]);
+		}
+		console.log("\n");
 		
 		await compareBAR();
 	
@@ -121,14 +130,14 @@ async function compareBAR() {
 	})
 	.catch(err => console.error(err));
 	
-	console.log("Tole je test");
+	console.log("This is a test.");
 	
 	
 	addList = dSet.filter(d => oldList.indexOf(d) == -1);
 	console.log(addList);
 	
 	console.log("\n********************\nThis is to be added to the BAR: \n\n");
-	console.log(new Date().toISOString().split("T")[0]);
+	console.log("# " + new Date().toISOString().split("T")[0]);
 	for(var i = 0; i < addList.length; i++) {
 		console.log(addList[i]);
 	}
