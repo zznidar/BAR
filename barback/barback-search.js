@@ -1,7 +1,7 @@
 // BARback-dev
 const puppeteer = require('puppeteer');
 const devices = require('puppeteer/DeviceDescriptors');
-const fetch = require('node-fetch');
+const fetch = require('node-fetch'); // Needed to GET the BAR from GitHub (npm install node-fetch)
 
 console.log("User passed a parameter: " + process.argv[2] + "\n"); // process.argv is an array of arguments passed by user
 
@@ -12,9 +12,9 @@ console.log("\n");
 
 var domains = [];
 var urls = []; // Full URLs, help us to manually visit redirects and find new domains
-var counter = 0;
-var lastCounter = 0;
-var timeoutRedirect = 9000;
+var counter = 0; // Counts redirects
+var lastCounter = 0; // Used to detect new redirects
+var timeoutRedirect = 9000; // Should default to 30000 ms (as 30000 ms is the default browser timeout); we shorten it for more speed for dev purposes
 
 var oldList = []; // Deduplicated later on, comments removed
 var addList = []; // Domains to be added
@@ -49,11 +49,6 @@ var addList = []; // Domains to be added
 				const response = page.click('div.MUxGbd.v0nnCb'); // Click the first result
 				});
 
-			//await page.waitFor(2000);
-			//await page.waitForNavigation({waitUntil: "networkidle0"});
-			
-			//timerId = setInterval(checkIdle, timeoutRedirect);
-			//const response = page.click('div.MUxGbd.v0nnCb'); // Click the first result
 
 			page.on('framenavigated', frame => {
 				if(frame.parentFrame() === null){
@@ -62,10 +57,7 @@ var addList = []; // Domains to be added
 					counter++;
 			}});
 			
-			//await page.waitForNavigation({waitUntil: "networkidle0"});
-			//console.log("Page has loaded and has been idle for 500 ms. Suppose redirects are finished; continue with next query.");
-			// We should browser.close() here, but need to test if ad-redirect pages maybe need more than 500 idle ms to redirect.
-			//browser.close();
+
 		} catch(e) {console.log('My error.', e);}
 
 }})();
@@ -85,7 +77,6 @@ async function checkIdle() {
 	console.log(timeoutRedirect);
 	if((counter == lastCounter) && counter != 0) {
 		console.log("No page redirects within last " + (timeoutRedirect/1000) + " seconds!");
-		//console.log("Page has loaded and has been idle for 500 ms. Suppose redirects are finished; continue with next query.");
 		clearInterval(timerId);
 		
 		console.log(domains);
@@ -117,10 +108,6 @@ function dedupe(arr) {
 }
 
 async function compareBAR() {
-	// GET https://raw.githubusercontent.com/zznidar/BAR/master/BAR-list
-	// Parse (split \n into a new set, ignore # (in case we keep the current syntax))
-	// Create new set
-	
 	await fetch('https://raw.githubusercontent.com/zznidar/BAR/master/BAR-list')
     .then(res => res.text())
     .then(body => {
@@ -129,8 +116,6 @@ async function compareBAR() {
 		console.log(oldList);
 	})
 	.catch(err => console.error(err));
-	
-	console.log("This is a test.");
 	
 	
 	addList = dSet.filter(d => oldList.indexOf(d) == -1);
