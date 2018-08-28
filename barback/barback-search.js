@@ -28,6 +28,8 @@ var addList = []; // Domains to be added
 	}
 
 	console.log("\n");
+	
+	timerId = setInterval(checkIdle, timeoutRedirect); 
 
 	async function test() {
 		try{
@@ -45,7 +47,6 @@ var addList = []; // Domains to be added
 			
 			page.once('load', () => {
 				console.log('Search results loaded!'); 
-				timerId = setInterval(checkIdle, timeoutRedirect); 
 				const response = page.click('div.MUxGbd.v0nnCb'); // Click the first result
 				});
 
@@ -58,7 +59,7 @@ var addList = []; // Domains to be added
 			}});
 			
 
-		} catch(e) {console.log('My error.', e);}
+		} catch(e) {console.log("Barback's error. Spilt some milk, probably. It's no use crying over it.", e);}
 
 }})();
 
