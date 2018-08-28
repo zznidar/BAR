@@ -1,3 +1,7 @@
+/* Usage: 
+node barback-search.js "query 1" "whitelisted domain 1" "query 2" "whitelisted domain 2" "query 3 ..." "whitelisted domain 3 ..."
+*/
+
 // BARback-dev
 const puppeteer = require('puppeteer');
 const devices = require('puppeteer/DeviceDescriptors');
@@ -19,17 +23,25 @@ var timeoutRedirect = 9000; // Should default to 30000 ms (as 30000 ms is the de
 var oldList = []; // Deduplicated later on, comments removed
 var addList = []; // Domains to be added
 
+var whitelist = []; // Target domains specified by user, not to be put onto BAR
+
+
+for(var i = 3; i < process.argv.length; i+=2) {
+	whitelist.push(process.argv[i]);
+}
+console.log("Whitelist: ", whitelist);
+
 
 (async function main() {
 	
-	for(i = 2; i < process.argv.length; i++) {
+	for(i = 2; i < process.argv.length; i+=2) {
 	await test();
 	console.log(domains);
 	}
 
 	console.log("\n");
 	
-	timerId = setInterval(checkIdle, timeoutRedirect); 
+	timerId = setInterval(checkIdle, timeoutRedirect); // Start the timer to regularily check for idle state
 
 	async function test() {
 		try{
@@ -119,7 +131,7 @@ async function compareBAR() {
 	.catch(err => console.error(err));
 	
 	
-	addList = dSet.filter(d => oldList.indexOf(d) == -1);
+	addList = dSet.filter(d => oldList.indexOf(d) == -1).filter(w => whitelist.indexOf(w) == -1);
 	console.log(addList);
 	
 	console.log("\n********************\nThis is to be added to the BAR: \n\n");
