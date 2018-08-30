@@ -18,12 +18,12 @@ var domains = [];
 var urls = []; // Full URLs, help us to manually visit redirects and find new domains
 var counter = 0; // Counts redirects
 var lastCounter = 0; // Used to detect new redirects
-var timeoutRedirect = 9000; // Should default to 30000 ms (as 30000 ms is the default browser timeout); we shorten it for more speed for dev purposes
+var timeoutRedirect = 30000; // Should default to 30000 ms (as 30000 ms is the default browser timeout); we shorten it for more speed for dev purposes
 
 var oldList = []; // Deduplicated later on, comments removed
 var addList = []; // Domains to be added
 
-var whitelist = []; // Target domains specified by user, not to be put onto BAR
+var whitelist = ["chromewebdata"]; // Target domains specified by user, not to be put onto BAR; we also whitelist chromewebdata which is shown when page is not found
 
 
 for(var i = 3; i < process.argv.length; i+=2) {
@@ -51,7 +51,7 @@ console.log("Whitelist: ", whitelist);
 			
 
 			
-			await page.emulate(devices['iPhone 6'])
+			await page.emulate(devices['Pixel 2'])
 			await page.goto('https://google.com', { waitUntil: 'networkidle0' });
 			await page.focus('input[name=q]');
 			await page.type('input[name=q]', process.argv[i] + (String.fromCharCode(13)), { delay: 10 })
