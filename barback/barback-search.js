@@ -101,7 +101,8 @@ async function checkIdle() {
 		console.log(dSet);
 		
 		urls = dedupe(urls);
-		console.log("\n*** Full URLs we've been redirected to (they may be used for future testing): ***\n");
+		console.log("\n\n********************\nFull URLs we've been redirected to (they may be used for future testing): \n");
+		console.log("# " + new Date().toISOString().split("T")[0]);
 		for(var i = 0; i < urls.length; i++) {
 			console.log(urls[i]);
 		}
@@ -124,15 +125,15 @@ async function compareBAR() {
 	await fetch('https://raw.githubusercontent.com/zznidar/BAR/master/BAR-list')
     .then(res => res.text())
     .then(body => {
-		console.log(body);
+		//console.log(body);
 		oldList = [...new Set(body.split("\n").filter(a => a.split("#")[0] != ""))];
-		console.log(oldList);
+		//console.log(oldList);
 	})
 	.catch(err => console.error(err));
 	
 	
 	addList = dSet.filter(d => oldList.indexOf(d) == -1).filter(w => whitelist.indexOf(w) == -1);
-	console.log(addList);
+	//console.log(addList);
 	
 	console.log("\n********************\nThis is to be added to the BAR: \n\n");
 	console.log("# " + new Date().toISOString().split("T")[0]);
