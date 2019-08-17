@@ -1,5 +1,9 @@
 /* Usage: 
-node barback-search.js "query 1" "whitelisted domain 1" "query 2" "whitelisted domain 2" "query 3 ..." "whitelisted domain 3 ..."
+start cmd /k node barback-search.js "query 1" "whitelisted domain 1" "query 2" "whitelisted domain 2" "query 3 ..." "whitelisted domain 3 ..."
+*/
+
+/* Recommended form of an example query:
+	"site:example.com \"example.com\""
 */
 
 // BARback-dev
@@ -18,7 +22,7 @@ var domains = [];
 var urls = []; // Full URLs, help us to manually visit redirects and find new domains
 var counter = 0; // Counts redirects
 var lastCounter = 0; // Used to detect new redirects
-var timeoutRedirect = 30000; // Should default to 30000 ms (as 30000 ms is the default browser timeout); we shorten it for more speed for dev purposes
+var timeoutRedirect = 3000; // Should default to 30000 ms (as 30000 ms is the default browser timeout); we shorten it for more speed for dev purposes
 
 var oldList = []; // Deduplicated later on, comments removed
 var addList = []; // Domains to be added
@@ -31,6 +35,8 @@ for(var i = 3; i < process.argv.length; i+=2) {
 }
 console.log("Whitelist: ", whitelist);
 
+var repetitions = 10; // Number of times to re-run the script prior to deduping and outputing results. NOTE: that many scripts run simultaneously. Opening 33 Chromium instances is a regretful idea.
+var currentRepetition = 0; // Which repetition runs
 
 (async function main() {
 	
@@ -42,36 +48,40 @@ console.log("Whitelist: ", whitelist);
 	console.log("\n");
 	
 	timerId = setInterval(checkIdle, timeoutRedirect); // Start the timer to regularily check for idle state
+	
+
 
 	async function test() {
-		try{
-			const browser = await puppeteer.launch({ headless: false });
-			const page = await browser.newPage();
-			//page.setUserAgent('Mozilla/5.0 (Linux; Android 8.0.0; SM-G955F Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.91 Mobile Safari/537.36');
-			
+		for(currentRepetition; currentRepetition < repetitions; currentRepetition++) {
+			try{
+				const browser = await puppeteer.launch({ headless: false });
+				const page = await browser.newPage();
+				//page.setUserAgent('Mozilla/5.0 (Linux; Android 8.0.0; SM-G955F Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.91 Mobile Safari/537.36');
+				
 
-			
-			await page.emulate(devices['Pixel 2'])
-			await page.goto('https://google.com', { waitUntil: 'networkidle0' });
-			await page.focus('input[name=q]');
-			await page.type('input[name=q]', process.argv[i] + (String.fromCharCode(13)), { delay: 10 })
-			
-			
-			page.once('load', () => {
-				console.log('Search results loaded!'); 
-				const response = page.click('div.MUxGbd.v0nnCb'); // Click the first result
-				});
+				
+				await page.emulate(devices[10 + currentRepetition%11]) //Pixel 2, iPad Pro // We start at 10 to avoid old-fashioned devices with old Google design; we modulo 11 not to run out of devices
+				await page.goto('https://google.com', { waitUntil: 'networkidle0' });
+				await page.focus('input[name=q]');
+				await page.type('input[name=q]', process.argv[i] + (String.fromCharCode(13)), { delay: 10 })
+				
+				
+				page.once('load', () => {
+					console.log('Search results loaded!'); 
+					const response = page.click('div.MUxGbd.v0nnCb'); // Click the first result
+					});
 
 
-			page.on('framenavigated', frame => {
-				if(frame.parentFrame() === null){
-					console.log(frame._url);
-					collect(frame._url);
-					counter++;
-			}});
-			
+				page.on('framenavigated', frame => {
+					if(frame.parentFrame() === null){
+						console.log(frame._url);
+						collect(frame._url);
+						counter++;
+				}});
+				
 
-		} catch(e) {console.log("Barback's error. Spilt some milk, probably. It's no use crying over it.", e);}
+			} catch(e) {console.log("Barback's error. Spilt some milk, probably. It's no use crying over it.", e);}
+		}
 
 }})();
 
@@ -93,6 +103,7 @@ async function checkIdle() {
 		clearInterval(timerId);
 		
 		console.log(domains);
+		
 		console.log("Finished. Time to dedupe domains and compare to BAR-list.\n");
 		domains.forEach(function (val, array) {
 			console.log(val);
@@ -109,7 +120,7 @@ async function checkIdle() {
 		console.log("\n");
 		
 		await compareBAR();
-	
+		
 	}
 	else {
 		console.log((counter - lastCounter) + " new redirects.");
