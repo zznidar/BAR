@@ -6,6 +6,10 @@ start cmd /k node barback-search.js "query 1" "whitelisted domain 1" "query 2" "
 	"site:example.com \"example.com\""
 */
 
+/* Usage when nesting multiple commands (useful when integrating automatic commit/pushing to GitHub):
+start "barback" "cmd /k node barback-search.js "query 1" "whitelisted domain 1" "query 2" "whitelisted domain 2" "query 3 ..." "whitelisted domain 3 ..." & yourNextCommand & subsequentCommand"
+*/
+
 // BARback-dev
 const puppeteer = require('puppeteer');
 const devices = require('puppeteer/DeviceDescriptors');
@@ -38,6 +42,8 @@ console.log("Whitelist: ", whitelist);
 var repetitions = 10; // Number of times to re-run the script prior to deduping and outputing results. NOTE: that many scripts run simultaneously. Opening 33 Chromium instances is a regretful idea.
 var currentRepetition = 0; // Which repetition runs
 
+var ourBrowsers = []; // An array of browsers, all should be closed at the end of the barbacking
+
 (async function main() {
 	
 	for(i = 2; i < process.argv.length; i+=2) {
@@ -55,6 +61,7 @@ var currentRepetition = 0; // Which repetition runs
 		for(currentRepetition; currentRepetition < repetitions; currentRepetition++) {
 			try{
 				const browser = await puppeteer.launch({ headless: false });
+				ourBrowsers.push(browser); // We add our current browser to the array of browsers to be closed at the end
 				const page = await browser.newPage();
 				//page.setUserAgent('Mozilla/5.0 (Linux; Android 8.0.0; SM-G955F Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.91 Mobile Safari/537.36');
 				
@@ -151,5 +158,12 @@ async function compareBAR() {
 	for(var i = 0; i < addList.length; i++) {
 		console.log(addList[i]);
 	}
+	
+	// We close all the browsers in order to end the node script. What 
+	console.log("\n\n\nClosing " + ourBrowsers.length + " browsers ...");
+	for(var i = 0; i < ourBrowsers.length; i++) {
+		await ourBrowsers[i].close();
+	}
+	console.log("Browsers closed.\n");
 	
 }
