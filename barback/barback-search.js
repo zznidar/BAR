@@ -31,7 +31,7 @@ var timeoutRedirect = 3000; // Should default to 30000 ms (as 30000 ms is the de
 var oldList = []; // Deduplicated later on, comments removed
 var addList = []; // Domains to be added
 
-var whitelist = ["chromewebdata"]; // Target domains specified by user, not to be put onto BAR; we also whitelist chromewebdata which is shown when page is not found
+var whitelist = ["chromewebdata", "www.google.com"]; // Target domains specified by user, not to be put onto BAR; we also whitelist chromewebdata which is shown when page is not found; we also whitelist google.com as Google search is now treated as onFrameNavigated
 
 
 for(var i = 3; i < process.argv.length; i+=2) {
@@ -39,7 +39,7 @@ for(var i = 3; i < process.argv.length; i+=2) {
 }
 console.log("Whitelist: ", whitelist);
 
-var repetitions = 10; // Number of times to re-run the script prior to deduping and outputing results. NOTE: that many scripts run simultaneously. Opening 33 Chromium instances is a regretful idea.
+var repetitions = 5; // Number of times to re-run the script prior to deduping and outputing results. NOTE: that many scripts run simultaneously. Opening 33 Chromium instances is a regretful idea.
 var currentRepetition = 0; // Which repetition runs
 
 var ourBrowsers = []; // An array of browsers, all should be closed at the end of the barbacking
